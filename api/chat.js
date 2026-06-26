@@ -1,8 +1,6 @@
-const OpenAI = require('openai');
 const fs = require('fs');
 const path = require('path');
 
-// Knowledge base: read all .md files from uploads/ at cold start
 function loadKnowledgeBase() {
   try {
     const uploadsDir = path.join(process.cwd(), 'uploads');
@@ -46,42 +44,42 @@ ${knowledgeBase}
 - 답변은 간결하게 핵심만 (3~5문장 이내)`;
 
 module.exports = async function handler(req, res) {
-  // CORS headers (same-origin on production, useful for local dev)
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') {
-    res.writeHead ? res.writeHead(204) : res.status(204);
-    return res.end ? res.end() : res.send('');
-  }
-
-  if (req.method !== 'POST') {
-    return sendJson(res, 405, { error: 'Method not allowed' });
-  }
+  if (req.method === 'OPTIONS') return res.status(204).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const body = req.body;
   if (!body || !Array.isArray(body.messages)) {
-    return sendJson(res, 400, { error: '잘못된 요청 형식입니다.' });
+    return res.status(400).json({ error: '잘못된 요청 형식입니다.' });
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = (process.env.OPENAI_API_KEY || '').trim();
   if (!apiKey) {
-    console.error('OPENAI_API_KEY is not set');
-    return sendJson(res, 500, { error: 'API 키가 설정되지 않았습니다.' });
+    return res.status(500).json({
+      error: 'API 키가 설정되지 않았습니다. Vercel 대시보드 → Settings → Environment Variables에서 OPENAI_API_KEY를 추가해 주세요.',
+    });
+  }
+
+  // Lazy require to surface import errors clearly
+  let OpenAI;
+  try {
+    OpenAI = require('openai');
+  } catch (e) {
+    console.error('openai package load failed:', e.message);
+    return res.status(500).json({ error: 'openai 패키지 로드 실패: ' + e.message });
   }
 
   const client = new OpenAI({ apiKey });
-
-  // Keep last 10 messages (5 turns) for context
-  const recentMessages = body.messages.slice(-10);
 
   try {
     const completion = await client.chat.completions.create({
       model: 'gpt-5.4-mini',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
-        ...recentMessages,
+        ...body.messages.slice(-10),
       ],
       max_completion_tokens: 600,
       temperature: 0.5,
@@ -90,24 +88,18 @@ module.exports = async function handler(req, res) {
     const reply = completion.choices[0]?.message?.content?.trim()
       || '죄송합니다, 잠시 후 다시 시도해 주세요.';
 
-    return sendJson(res, 200, { reply });
+    return res.status(200).json({ reply });
   } catch (err) {
-    console.error('OpenAI API error:', err.message);
-    const msg = err.status === 401
-      ? 'API 키가 유효하지 않습니다.'
-      : '서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
-    return sendJson(res, 500, { error: msg });
+    console.error('OpenAI error:', err.status, err.message);
+    if (err.status === 401) {
+      return res.status(500).json({ error: 'API 키가 유효하지 않습니다. Vercel 환경변수를 확인해 주세요.' });
+    }
+    if (err.status === 404) {
+      return res.status(500).json({ error: '모델을 찾을 수 없습니다: ' + err.message });
+    }
+    if (err.status === 429) {
+      return res.status(500).json({ error: 'API 요청 한도 초과입니다. 잠시 후 다시 시도해 주세요.' });
+    }
+    return res.status(500).json({ error: '오류: ' + (err.message || '알 수 없는 오류') });
   }
 };
-
-function sendJson(res, status, data) {
-  const body = JSON.stringify(data);
-  if (typeof res.status === 'function') {
-    // Express/Vercel style
-    res.status(status).json(data);
-  } else {
-    // Node.js http.ServerResponse style
-    res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(body);
-  }
-}
