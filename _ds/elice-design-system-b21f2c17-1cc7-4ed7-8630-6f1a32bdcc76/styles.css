@@ -1,0 +1,18 @@
+/* ════════════════════════════════════════════════════════════════════
+   ELICE DESIGN SYSTEM — global CSS entry point.
+   Consumers link this ONE file. It is a manifest of @import lines only;
+   every token, font and base rule lives in the files below.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Webfonts (Pretendard UI, Material Symbols icons) */
+@import './tokens/fonts.css';
+
+/* Design tokens */
+@import './tokens/fig-tokens.css';   /* colors + palette (light/dark), from Figma Variables */
+@import './tokens/typography.css';   /* type scale, families, weights */
+@import './tokens/spacing.css';      /* spacing, radius, elevation, motion */
+
+/* Brand asset bitmaps materialized from Figma (logo fallbacks etc.) */
+
+/* Base reset */
+@import './tokens/base.css';

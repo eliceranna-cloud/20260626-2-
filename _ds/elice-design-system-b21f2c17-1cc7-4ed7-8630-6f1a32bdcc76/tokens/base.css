@@ -1,0 +1,27 @@
+/* Base reset / global defaults for the Elice design system. */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--body2-size);
+  line-height: var(--body2-line);
+  letter-spacing: var(--body2-tracking);
+  color: var(--text-primary);
+  background: var(--background-default);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+a { color: var(--primary-main); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+::selection { background: var(--primary-action-selected); }
+
+:focus-visible {
+  outline: 2px solid var(--primary-main);
+  outline-offset: 2px;
+}
