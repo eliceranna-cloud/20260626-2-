@@ -108,7 +108,7 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: '잘못된 요청 형식입니다.' });
   }
 
-  const apiKey = (process.env.OPENAI_API_KEY || '').trim();
+  const apiKey = (process.env.OPENAI_API_KEY || '').replace(/\s+/g, '');
   if (!apiKey) {
     return res.status(500).json({
       error: 'API 키가 설정되지 않았습니다. Vercel 대시보드 → Settings → Environment Variables에서 OPENAI_API_KEY를 추가해 주세요.',
