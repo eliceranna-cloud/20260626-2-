@@ -4,6 +4,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const chatHandler = require('./api/chat');
+const leadHandler = require('./api/lead');
 
 const PORT = process.env.PORT || 3000;
 const ROOT = __dirname;
@@ -26,6 +27,32 @@ const MIME = {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
   const pathname = url.pathname;
+
+  // ---- /api/lead ----
+  if (pathname === '/api/lead') {
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204, {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      });
+      return res.end();
+    }
+    if (req.method !== 'POST') {
+      res.writeHead(405, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'Method not allowed' }));
+    }
+    let raw = '';
+    req.on('data', chunk => { raw += chunk.toString(); });
+    req.on('end', async () => {
+      try { req.body = JSON.parse(raw); } catch {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ error: 'Invalid JSON' }));
+      }
+      await leadHandler(req, res);
+    });
+    return;
+  }
 
   // ---- /api/chat ----
   if (pathname === '/api/chat') {

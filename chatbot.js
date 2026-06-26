@@ -6,6 +6,7 @@
   var WELCOME = '안녕하세요! 👋\n저는 JYS봇이에요. JYS 컴퍼니의 마케팅·브랜딩 서비스에 대해 궁금한 점이 있으시면 편하게 질문해 주세요 😊';
 
   var history = [];
+  var sessionId = 'sess_' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36);
   var isOpen = false;
   var isLoading = false;
 
@@ -276,7 +277,7 @@
     fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: history }),
+      body: JSON.stringify({ messages: history, sessionId: sessionId }),
     })
       .then(function (r) {
         if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || '서버 오류'); });

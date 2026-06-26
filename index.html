@@ -316,7 +316,7 @@
             </div>
             <div>
               <label style="display:block;font:600 13px Pretendard;color:#5B6B82;margin-bottom:7px;">연락처</label>
-              <input type="text" required placeholder="010-0000-0000" style="width:100%;height:50px;border:1.5px solid #E0E4EA;border-radius:11px;padding:0 14px;font:400 15px Pretendard;color:#2D2D2D;outline:none;" />
+              <input ref="{{ phoneRef }}" type="text" required placeholder="010-0000-0000" style="width:100%;height:50px;border:1.5px solid #E0E4EA;border-radius:11px;padding:0 14px;font:400 15px Pretendard;color:#2D2D2D;outline:none;" />
             </div>
             <div>
               <label style="display:block;font:600 13px Pretendard;color:#5B6B82;margin-bottom:7px;">관심 패키지</label>
@@ -330,7 +330,7 @@
             </div>
             <div>
               <label style="display:block;font:600 13px Pretendard;color:#5B6B82;margin-bottom:7px;">간단한 문의 내용</label>
-              <textarea rows="3" placeholder="업종, 현재 운영 중인 채널, 고민을 적어주세요." style="width:100%;border:1.5px solid #E0E4EA;border-radius:11px;padding:13px 14px;font:400 15px/1.5 Pretendard;color:#2D2D2D;outline:none;resize:vertical;"></textarea>
+              <textarea ref="{{ msgRef }}" rows="3" placeholder="업종, 현재 운영 중인 채널, 고민을 적어주세요." style="width:100%;border:1.5px solid #E0E4EA;border-radius:11px;padding:13px 14px;font:400 15px/1.5 Pretendard;color:#2D2D2D;outline:none;resize:vertical;"></textarea>
             </div>
             <button class="jys-cta" type="submit" style="cursor:pointer;background:var(--accent,#F26C1D);color:#fff;font:600 16px Pretendard;padding:15px;border-radius:12px;border:none;box-shadow:0 8px 20px rgba(242,108,29,.3);margin-top:4px;">무료 상담 신청하기</button>
             <p style="text-align:center;font:400 13px Pretendard;color:#9AA3B2;margin:2px 0 0;">제출 후 영업일 3일 이내에 연락드립니다.</p>
@@ -401,8 +401,16 @@ class Component extends DCLogic {
   submit(e) {
     e.preventDefault();
     const name = (this._nameEl && this._nameEl.value || '').trim() || '고객';
+    const phone = (this._phoneEl && this._phoneEl.value || '').trim();
+    const message = (this._msgEl && this._msgEl.value || '').trim();
+    const pkg = this.state.selectedPackage || '';
     this.setState({ submitted: true, submittedName: name });
     this.scrollToId('contact');
+    fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, phone, package: pkg, message }),
+    }).catch(function() {});
   }
 
   componentDidMount() {
@@ -442,6 +450,8 @@ class Component extends DCLogic {
       showPricing: this.props.showPricing !== false,
       rootRef: (el) => { this.root = el; },
       nameRef: (el) => { this._nameEl = el; },
+      phoneRef: (el) => { this._phoneEl = el; },
+      msgRef: (el) => { this._msgEl = el; },
       chooseStarter: () => this.choosePackage('스타터'),
       chooseGrowth: () => this.choosePackage('그로스'),
       choosePremium: () => this.choosePackage('프리미엄'),
