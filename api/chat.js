@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 
 function loadKnowledgeBase() {
   try {
@@ -43,6 +44,57 @@ ${knowledgeBase}
 - 친근하고 전문적인 해요체 사용
 - 답변은 간결하게 핵심만 (3~5문장 이내)`;
 
+// OpenAI API direct call via Node.js built-in https (no external SDK)
+function callOpenAI(apiKey, messages) {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({
+      model: 'gpt-5.4-mini',
+      messages,
+      max_completion_tokens: 600,
+      temperature: 0.5,
+    });
+
+    const options = {
+      hostname: 'api.openai.com',
+      path: '/v1/chat/completions',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + apiKey,
+        'Content-Length': Buffer.byteLength(body),
+      },
+    };
+
+    const req = https.request(options, (response) => {
+      let data = '';
+      response.on('data', chunk => { data += chunk; });
+      response.on('end', () => {
+        try {
+          const parsed = JSON.parse(data);
+          if (response.statusCode === 200) {
+            resolve(parsed.choices?.[0]?.message?.content?.trim() || '죄송합니다, 잠시 후 다시 시도해 주세요.');
+          } else {
+            const err = new Error(parsed.error?.message || 'API error');
+            err.status = response.statusCode;
+            reject(err);
+          }
+        } catch (e) {
+          reject(new Error('JSON 파싱 오류: ' + data.slice(0, 100)));
+        }
+      });
+    });
+
+    req.setTimeout(25000, () => {
+      req.destroy();
+      reject(new Error('요청 시간이 초과됐습니다 (25s).'));
+    });
+
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -63,43 +115,19 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  // Lazy require to surface import errors clearly
-  let OpenAI;
-  try {
-    OpenAI = require('openai');
-  } catch (e) {
-    console.error('openai package load failed:', e.message);
-    return res.status(500).json({ error: 'openai 패키지 로드 실패: ' + e.message });
-  }
-
-  const client = new OpenAI({ apiKey });
+  const messages = [
+    { role: 'system', content: SYSTEM_PROMPT },
+    ...body.messages.slice(-10),
+  ];
 
   try {
-    const completion = await client.chat.completions.create({
-      model: 'gpt-5.4-mini',
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        ...body.messages.slice(-10),
-      ],
-      max_completion_tokens: 600,
-      temperature: 0.5,
-    });
-
-    const reply = completion.choices[0]?.message?.content?.trim()
-      || '죄송합니다, 잠시 후 다시 시도해 주세요.';
-
+    const reply = await callOpenAI(apiKey, messages);
     return res.status(200).json({ reply });
   } catch (err) {
-    console.error('OpenAI error:', err.status, err.message);
-    if (err.status === 401) {
-      return res.status(500).json({ error: 'API 키가 유효하지 않습니다. Vercel 환경변수를 확인해 주세요.' });
-    }
-    if (err.status === 404) {
-      return res.status(500).json({ error: '모델을 찾을 수 없습니다: ' + err.message });
-    }
-    if (err.status === 429) {
-      return res.status(500).json({ error: 'API 요청 한도 초과입니다. 잠시 후 다시 시도해 주세요.' });
-    }
-    return res.status(500).json({ error: '오류: ' + (err.message || '알 수 없는 오류') });
+    console.error('OpenAI call failed:', err.status, err.message);
+    if (err.status === 401) return res.status(500).json({ error: 'API 키가 유효하지 않습니다.' });
+    if (err.status === 404) return res.status(500).json({ error: '모델을 찾을 수 없습니다: ' + err.message });
+    if (err.status === 429) return res.status(500).json({ error: '요청 한도 초과입니다. 잠시 후 다시 시도해 주세요.' });
+    return res.status(500).json({ error: err.message || '알 수 없는 오류' });
   }
 };
