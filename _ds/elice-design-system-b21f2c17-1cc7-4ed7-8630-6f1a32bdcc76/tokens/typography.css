@@ -1,0 +1,47 @@
+/* Typography tokens — Elice / Material-based type scale.
+   Body & UI: Pretendard. Headings use Pretendard ExtraBold (800).
+   Sizes, weights, line-heights and tracking lifted from the Figma
+   "Typography" page (desktop variants). */
+:root {
+  /* Families */
+  --font-sans: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', 'Apple SD Gothic Neo', 'Noto Sans KR', Arial, sans-serif;
+  --font-display: 'Elice DX Neolli', 'Pretendard Variable', Pretendard, sans-serif; /* ⚠ brand font substituted by Pretendard */
+  --font-mono: 'Roboto Mono', 'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace;
+
+  /* Weight ramp (Pretendard) */
+  --fw-regular: 400; /* @kind other */
+  --fw-medium: 500; /* @kind other */
+  --fw-semibold: 600; /* @kind other */
+  --fw-bold: 700; /* @kind other */
+  --fw-extrabold: 800; /* @kind other */
+
+  /* Type scale — size / line-height / weight / tracking */
+  --h1-size: 96px;   --h1-line: 1.167; /* @kind other */  --h1-weight: 800; /* @kind other */  --h1-tracking: -1.5px; /* @kind other */
+  --h2-size: 60px;   --h2-line: 1.2; /* @kind other */    --h2-weight: 800; /* @kind other */  --h2-tracking: -0.5px; /* @kind other */
+  --h3-size: 48px;   --h3-line: 1.167; /* @kind other */  --h3-weight: 800; /* @kind other */  --h3-tracking: 0px; /* @kind other */
+  --h4-size: 34px;   --h4-line: 1.235; /* @kind other */  --h4-weight: 800; /* @kind other */  --h4-tracking: 0.25px; /* @kind other */
+  --h5-size: 24px;   --h5-line: 1.334; /* @kind other */  --h5-weight: 800; /* @kind other */  --h5-tracking: 0px; /* @kind other */
+  --h6-size: 20px;   --h6-line: 1.6; /* @kind other */    --h6-weight: 800; /* @kind other */  --h6-tracking: 0.15px; /* @kind other */
+  --subtitle1-size: 16px; --subtitle1-line: 1.75; /* @kind other */ --subtitle1-weight: 600; /* @kind other */ --subtitle1-tracking: 0.15px; /* @kind other */
+  --subtitle2-size: 14px; --subtitle2-line: 1.57; /* @kind other */ --subtitle2-weight: 600; /* @kind other */ --subtitle2-tracking: 0.1px; /* @kind other */
+  --body1-size: 16px; --body1-line: 1.5; /* @kind other */  --body1-weight: 500; /* @kind other */ --body1-tracking: 0.15px; /* @kind other */
+  --body2-size: 14px; --body2-line: 1.43; /* @kind other */ --body2-weight: 500; /* @kind other */ --body2-tracking: 0.15px; /* @kind other */
+  --button-size: 14px; --button-line: 1.75; /* @kind other */ --button-weight: 700; /* @kind other */ --button-tracking: 0.4px; /* @kind other */
+  --caption-size: 12px; --caption-line: 1.66; /* @kind other */ --caption-weight: 500; /* @kind other */ --caption-tracking: 0.4px; /* @kind other */
+  --overline-size: 12px; --overline-line: 2.66; /* @kind other */ --overline-weight: 400; /* @kind other */ --overline-tracking: 1px; /* @kind other */
+}
+
+/* Optional ready-made text classes (handy for specimens & quick markup). */
+.t-h1 { font: var(--h1-weight) var(--h1-size)/var(--h1-line) var(--font-sans); letter-spacing: var(--h1-tracking); }
+.t-h2 { font: var(--h2-weight) var(--h2-size)/var(--h2-line) var(--font-sans); letter-spacing: var(--h2-tracking); }
+.t-h3 { font: var(--h3-weight) var(--h3-size)/var(--h3-line) var(--font-sans); letter-spacing: var(--h3-tracking); }
+.t-h4 { font: var(--h4-weight) var(--h4-size)/var(--h4-line) var(--font-sans); letter-spacing: var(--h4-tracking); }
+.t-h5 { font: var(--h5-weight) var(--h5-size)/var(--h5-line) var(--font-sans); letter-spacing: var(--h5-tracking); }
+.t-h6 { font: var(--h6-weight) var(--h6-size)/var(--h6-line) var(--font-sans); letter-spacing: var(--h6-tracking); }
+.t-subtitle1 { font: var(--subtitle1-weight) var(--subtitle1-size)/var(--subtitle1-line) var(--font-sans); letter-spacing: var(--subtitle1-tracking); }
+.t-subtitle2 { font: var(--subtitle2-weight) var(--subtitle2-size)/var(--subtitle2-line) var(--font-sans); letter-spacing: var(--subtitle2-tracking); }
+.t-body1 { font: var(--body1-weight) var(--body1-size)/var(--body1-line) var(--font-sans); letter-spacing: var(--body1-tracking); }
+.t-body2 { font: var(--body2-weight) var(--body2-size)/var(--body2-line) var(--font-sans); letter-spacing: var(--body2-tracking); }
+.t-caption { font: var(--caption-weight) var(--caption-size)/var(--caption-line) var(--font-sans); letter-spacing: var(--caption-tracking); }
+.t-overline { font: var(--overline-weight) var(--overline-size)/var(--overline-line) var(--font-sans); letter-spacing: var(--overline-tracking); text-transform: uppercase; }

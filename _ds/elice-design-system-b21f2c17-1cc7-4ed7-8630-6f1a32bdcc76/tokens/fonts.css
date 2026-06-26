@@ -1,0 +1,40 @@
+/* Webfonts for the Elice design system.
+   ───────────────────────────────────────────────────────────────────────
+   PRIMARY UI TYPEFACE — Pretendard (open-source, OFL). Loaded from the
+   official jsDelivr CDN as a dynamic-subset stylesheet that declares the
+   @font-face rules for every weight + the Korean/Latin glyph ranges. */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css');
+
+/* BRAND DISPLAY TYPEFACE — "Elice DX Neolli" is Elice's proprietary
+   corporate font (used for marketing headlines, the CI lockup, and a few
+   hero moments). It is NOT publicly distributable, so no @font-face is
+   shipped here; --font-display falls back to Pretendard ExtraBold, which
+   is visually close for product UI. ⚠️ SUBSTITUTION — supply the real
+   Elice DX Neolli OTF/WOFF files to use it in marketing artifacts. */
+
+/* ICON FONT — Material Symbols Rounded (Google, Apache-2.0). This matches
+   the bulk of the icon usage in the Figma file (the *_Rounded glyph set).
+   Filled + outlined controlled via font-variation-settings. */
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+
+/* MONO — Roboto Mono (Google, Apache-2.0), used for code/numeric specimens. */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap');
+
+/* Material Symbols base class. Usage: <span class="ms">favorite</span> */
+.ms,
+.material-symbols-rounded {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.ms--filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
